@@ -8,9 +8,7 @@ import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateC
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -43,80 +41,73 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
         @Override
         public void run() {
             if (update.hasMessage()) {
-                if (update.getMessage().hasText()) {
-                    caseText(update);
+                Message message = update.getMessage();
+                if (message.hasText()) {
+                    caseText(message);
                 }
-                if (update.getMessage().hasLocation()) {
-                    caseLocation(update);
+                if (message.hasLocation()) {
+                    caseLocation(message);
                 }
             }
         }
 
-        private void caseText(Update update) {
-            switch (update.getMessage().getText()) {
+        private void caseText(Message message) {
+            switch (message.getText()) {
                 case ("/start"):
-                    caseTextStart(update);
+                    caseTextStart(message);
                     break;
                 default:
-                    caseTextDefault(update);
+                    caseTextDefault(message);
                     break;
             }
         }
 
-        private void caseTextStart(Update update) {
-            long chatId = update.getMessage().getChatId();
-            SendMessage message = SendMessage
+        private void sendText(long chatId, String text) {
+            SendMessage sendMessage = SendMessage
                         .builder()
                         .chatId(chatId)
-                        .text("Welcome!")
+                        .text(text)
+                        .build();
+
+            try {
+                telegramClient.execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void caseTextStart(Message message) {
+            DataBase.addNewUser(message);
+            long chatId = message.getChatId();
+            String username = message.getFrom().getUserName();
+            SendMessage sendMessage = SendMessage
+                        .builder()
+                        .chatId(chatId)
+                        .text("Welcome, " + username + "!")
                         .build();
     
             // Add the keyboard to the message
-            KeyboardButton keyboardButton = new KeyboardButton("Get my Location");
-            keyboardButton.setRequestLocation(true);
-            KeyboardRow keyboardRow = new KeyboardRow(keyboardButton);
-            message.setReplyMarkup(ReplyKeyboardMarkup
-                            .builder()
-                            .resizeKeyboard(true)
-                            .keyboardRow(keyboardRow)
-                            .build());
-            try {
-                telegramClient.execute(message);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }
-    
-        private void caseTextDefault(Update update) {
-            String messageText = update.getMessage().getText();
-            long chatId = update.getMessage().getChatId();
-        
-            SendMessage sendMessage = SendMessage
-                                        .builder()
-                                        .chatId(chatId)
-                                        .text(messageText)
-                                        .build();
+            sendMessage.setReplyMarkup(Buttons.replyKeyboard());
+
             try {
                 telegramClient.execute(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
+        }
+    
+        private void caseTextDefault(Message message) {
+            
+            String messageText = message.getText();
+            long chatId = message.getChatId();
+            sendText(chatId, messageText);
+            System.out.println(update.getMessage().getText());
         }
 
-        private void caseLocation(Update update) {
-            Location location = update.getMessage().getLocation();
-            long chatId = update.getMessage().getChatId();
-    
-            SendMessage sendMessage = SendMessage
-                                        .builder()
-                                        .chatId(chatId)
-                                        .text(location.toString())
-                                        .build();
-            try {
-                telegramClient.execute(sendMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+        private void caseLocation(Message message) {
+            Location location = message.getLocation();
+            long chatId = message.getChatId();
+            sendText(chatId, location.toString());
         }
 
     }

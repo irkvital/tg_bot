@@ -1,5 +1,5 @@
 CREATE TABLE 
-    users (id SERIAL PRIMARY KEY, 
+    users (id PRIMARY KEY, 
             username varchar(32) not null, 
             first_name varchar(64), 
             last_name varchar(64));
