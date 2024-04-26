@@ -1,19 +1,23 @@
 services:
   postgres:
+    env_file:
+      - ./.env
     container_name: postgres_container
     image: postgres:latest
-    env_file:
-      - ./.env.postgres
     environment:
-      POSTGRES_DB: "mydb"
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    networks:
+      custom_net:
+        ipv4_address: ${POSTGRES_IP}
+    
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,14 +28,13 @@ services:
         limits:
           cpus: '1'
           memory: 4G
-    networks:
-      - postgres
+
 
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4:latest
     env_file:
-      - ./.env.pgadmin
+      - ./.env
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     ports:
@@ -43,18 +46,22 @@ services:
           cpus: '0.5'
           memory: 1G
     networks:
-      - postgres
+      custom_net:
+        ipv4_address: 10.5.0.4
+
 
   bot:
-    container_name: "bot"
+    container_name: bot
     build:
       context: .
     env_file:
-      - ./.env.bot
-  
+      - ./.env
     ports:
       - "8080:8080"
     restart: unless-stopped
+    networks:
+      custom_net:
+        ipv4_address: 10.5.0.3
 
 
 volumes:
@@ -62,5 +69,9 @@ volumes:
   pgadmin-data:
 
 networks:
-  postgres:
+  custom_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

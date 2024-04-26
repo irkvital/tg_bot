@@ -34,7 +34,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
 
     private class BotTask implements Runnable {
         Update update;
-        final String url = "https://api.telegram.org/";
+        // final String url = "https://api.telegram.org/";
 
         BotTask(Update update) {
             this.update = update;

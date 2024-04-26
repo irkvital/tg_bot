@@ -7,7 +7,7 @@
   <groupId>bot</groupId>
   <artifactId>tg_bot</artifactId>
   <packaging>jar</packaging>
-  <version>0.1</version>
+  <version>0.2</version>
 
   <name>tg_bot</name>
   <!-- FIXME change it to the project's website -->
@@ -40,6 +40,11 @@
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.4.1</version>
     </dependency>
   </dependencies>
 

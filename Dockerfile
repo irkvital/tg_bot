@@ -1,7 +1,7 @@
 FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 COPY . /app
 WORKDIR /app
-RUN mvn install package
+RUN mvn package
 
 FROM eclipse-temurin:17-jre-alpine
 COPY --from=build /app/target/*spring-boot.jar /app.jar
