@@ -10,11 +10,10 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "5430:${POSTGRES_PORT}"
     networks:
       custom_net:
         ipv4_address: ${POSTGRES_IP}
-    
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -56,6 +55,11 @@ services:
       context: .
     env_file:
       - ./.env
+    deploy:
+      resources:
+        limits:
+          cpus: '12'
+          memory: 2G
     ports:
       - "8080:8080"
     restart: unless-stopped
