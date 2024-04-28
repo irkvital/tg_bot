@@ -56,8 +56,9 @@ public class DataBase {
         String lastName = user.getLastName();
 
         boolean exists;
+        String sqlFile = "./sql/exists_user.sql";
         try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(readSqlFile("./sql/exists_user.sql"));
+            PreparedStatement stmt = conn.prepareStatement(readSqlFile(sqlFile));
             stmt.setLong(1, id);
             ResultSet res = stmt.executeQuery();
             
@@ -68,13 +69,14 @@ public class DataBase {
                 throw new SQLException("Some problem when searching for a user");
             }
         } catch (SQLException | IOException e) {
-            logger.error(e.getMessage(), e);
+            logger.error("Some problems with sql query at file {}", sqlFile, e);
             return;
         }
 
         if (!exists) {
+            sqlFile = "./sql/add_new_user.sql";
             try (Connection conn = dataSource.getConnection()) {
-                PreparedStatement stmt = conn.prepareStatement(readSqlFile("./sql/add_new_user.sql"));
+                PreparedStatement stmt = conn.prepareStatement(readSqlFile(sqlFile));
                 stmt.setLong(1, id);
                 stmt.setString(2, username);
                 stmt.setString(3, firsName);
@@ -84,7 +86,7 @@ public class DataBase {
                     logger.info("Added new user: {}", id);
                 }
             } catch (SQLException | IOException e) {
-                logger.error(e.getMessage(), e);
+                logger.error("Some problems with sql query at file {}", sqlFile, e);
             }
         } else {
             logger.info("User {} already exists.", id);

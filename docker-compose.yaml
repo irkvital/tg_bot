@@ -29,26 +29,6 @@ services:
           memory: 4G
 
 
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4:latest
-    env_file:
-      - ./.env
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    ports:
-      - "5050:80"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-    networks:
-      custom_net:
-        ipv4_address: 10.5.0.4
-
-
   bot:
     container_name: bot
     build:
