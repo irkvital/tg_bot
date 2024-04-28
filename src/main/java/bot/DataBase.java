@@ -9,10 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.postgresql.ds.PGSimpleDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 
 public class DataBase {
+    private final static Logger logger = LoggerFactory.getLogger(DataBase.class);
     private final static String dbContainerName = System.getenv("POSTGRES_IP");
     private final static String dbPort = System.getenv("POSTGRES_PORT");
     private final static String dbName = System.getenv("POSTGRES_DB");
@@ -28,17 +31,6 @@ public class DataBase {
         dataSource.setURL(dbUrl);
     }
 
-    // public static void tryToConnect() {
-    //     System.out.println(dbUrl);
-    //     try (Connection conn = dataSource.getConnection()) {
-    //         PreparedStatement stmt = conn.prepareStatement("select * from users");
-    //         ResultSet res = stmt.executeQuery();
-    //         System.out.println("RESULT: " + res);
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
     public static String readSqlFile(String file) throws IOException {
         String out = null;
         StringBuilder strBuild = new StringBuilder();
@@ -49,6 +41,7 @@ public class DataBase {
                 strBuild.append('\n');
             }
             out = strBuild.toString();
+            logger.info("The file {} was read correctly.", file);
             return out;
         } finally {
             buffRead.close();
@@ -62,34 +55,40 @@ public class DataBase {
         String firsName = user.getFirstName();
         String lastName = user.getLastName();
 
+        boolean exists;
         try (Connection conn = dataSource.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(readSqlFile("./sql/exists_user.sql"));
             stmt.setLong(1, id);
             ResultSet res = stmt.executeQuery();
-            boolean exists;
+            
             if (res.next()) {
                 exists = res.getBoolean(1);
+                logger.info("Checked the user {}.", id);
             } else {
                 throw new SQLException("Some problem when searching for a user");
             }
+        } catch (SQLException | IOException e) {
+            logger.error(e.getMessage(), e);
+            return;
+        }
 
-            if (!exists) {
-                stmt = conn.prepareStatement(readSqlFile("./sql/add_new_user.sql"));
+        if (!exists) {
+            try (Connection conn = dataSource.getConnection()) {
+                PreparedStatement stmt = conn.prepareStatement(readSqlFile("./sql/add_new_user.sql"));
                 stmt.setLong(1, id);
                 stmt.setString(2, username);
                 stmt.setString(3, firsName);
                 stmt.setString(4, lastName);
                 int addedUser = stmt.executeUpdate();
                 if (addedUser > 0) {
-                    System.out.println("Added user: " + username);
+                    logger.info("Added new user: {}", id);
                 }
+            } catch (SQLException | IOException e) {
+                logger.error(e.getMessage(), e);
             }
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
+        } else {
+            logger.info("User {} already exists.", id);
         }
 
-
-        
     }
-    
 }

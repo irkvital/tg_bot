@@ -9,7 +9,6 @@ public class App
 
         try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
             botsApplication.registerBot(botToken, new Bot(botToken));
-            System.out.println("Start bot");
             Thread.currentThread().join();
         } catch (Exception e) {
             e.printStackTrace();

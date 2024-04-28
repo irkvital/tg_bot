@@ -3,6 +3,8 @@ package bot;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -13,6 +15,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 public class Bot implements LongPollingSingleThreadUpdateConsumer  {
+    private final static Logger logger = LoggerFactory.getLogger(Bot.class);
     private final TelegramClient telegramClient;
     String botToken;
     ExecutorService executorService;
@@ -20,6 +23,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
     public Bot(String botToken) {
         telegramClient = new OkHttpTelegramClient(botToken);
         this.botToken = botToken;
+        logger.info("Start bot: {}", botToken);
         executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
@@ -52,6 +56,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
         }
 
         private void caseText(Message message) {
+            logger.info("User {} input text: {}", message.getChatId(), message.getText());
             switch (message.getText()) {
                 case ("/start"):
                     caseTextStart(message);
@@ -72,7 +77,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
             try {
                 telegramClient.execute(sendMessage);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                logger.error("Can't execute message", e);
             }
         }
 
@@ -92,21 +97,20 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
             try {
                 telegramClient.execute(sendMessage);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                logger.error("Can't execute message", e);
             }
         }
     
         private void caseTextDefault(Message message) {
-            
             String messageText = message.getText();
             long chatId = message.getChatId();
             sendText(chatId, messageText);
-            System.out.println(update.getMessage().getText());
         }
 
         private void caseLocation(Message message) {
             Location location = message.getLocation();
             long chatId = message.getChatId();
+            logger.info("User {} send location: lat {} lon {}", chatId, location.getLatitude(), location.getLongitude());
             sendText(chatId, location.toString());
         }
 
