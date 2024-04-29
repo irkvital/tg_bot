@@ -26,7 +26,12 @@ public class DataBase {
     private final static PGSimpleDataSource dataSource = new PGSimpleDataSource();
 
     static {
-        dataSource.setURL(dbUrl);
+        try {
+            dataSource.setURL(dbUrl);
+            logger.info("URL set correctly: {}", dbUrl);
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
+        }
     }
 
     public static String readSqlFile(String file) throws IOException {
