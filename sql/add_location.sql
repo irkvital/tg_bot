@@ -1,0 +1,1 @@
+INSERT INTO users_location (users_id, longitude, latitude) values (?,?,?);

@@ -11,8 +11,6 @@ import java.sql.SQLException;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 
 public class DataBase {
     private final static Logger logger = LoggerFactory.getLogger(DataBase.class);
@@ -48,13 +46,7 @@ public class DataBase {
         }
     }
 
-    public static void addNewUser(Message message) {
-        User user = message.getFrom();
-        Long id = user.getId();
-        String username = user.getUserName();
-        String firsName = user.getFirstName();
-        String lastName = user.getLastName();
-
+    public static void addNewUser(long id, String username, String firstName, String lastName) {
         boolean exists;
         String sqlFile = "./sql/exists_user.sql";
         try (Connection conn = dataSource.getConnection()) {
@@ -79,7 +71,7 @@ public class DataBase {
                 PreparedStatement stmt = conn.prepareStatement(readSqlFile(sqlFile));
                 stmt.setLong(1, id);
                 stmt.setString(2, username);
-                stmt.setString(3, firsName);
+                stmt.setString(3, firstName);
                 stmt.setString(4, lastName);
                 int addedUser = stmt.executeUpdate();
                 if (addedUser > 0) {
@@ -91,6 +83,22 @@ public class DataBase {
         } else {
             logger.info("User {} already exists.", id);
         }
+    }
 
+    public static void addLocation(long id, double longitude, double latitude) {
+        String sqlFile = "./sql/add_location.sql";
+        try (Connection conn = dataSource.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(readSqlFile(sqlFile));
+            stmt.setLong(1, id);
+            stmt.setDouble(2, longitude);
+            stmt.setDouble(3, latitude);
+            int addedLocation = stmt.executeUpdate();
+            if (addedLocation > 0) {
+                logger.info("Added location {} {} for user {}", longitude, latitude, id);
+            }
+        } catch (SQLException | IOException e) {
+            logger.error("Some problems with sql query at file {}", sqlFile, e);
+            return;
+        }
     }
 }

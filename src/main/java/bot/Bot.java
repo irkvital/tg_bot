@@ -10,6 +10,7 @@ import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateC
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -82,9 +83,12 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
         }
 
         private void caseTextStart(Message message) {
-            DataBase.addNewUser(message);
-            long chatId = message.getChatId();
-            String username = message.getFrom().getUserName();
+            User user = message.getFrom();
+            long chatId = user.getId();
+            String username = user.getUserName();
+            String firsName = user.getFirstName();
+            String lastName = user.getLastName();
+            DataBase.addNewUser(chatId, username, firsName, lastName);
             SendMessage sendMessage = SendMessage
                         .builder()
                         .chatId(chatId)
@@ -108,12 +112,13 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
         }
 
         private void caseLocation(Message message) {
-            Location location = message.getLocation();
+            Double latitude = message.getLocation().getLatitude();
+            Double longitude = message.getLocation().getLongitude();
             long chatId = message.getChatId();
-            logger.info("User {} send location: lat {} lon {}", chatId, location.getLatitude(), location.getLongitude());
-            sendText(chatId, location.toString());
+            logger.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
+            sendText(chatId, latitude.toString() + " " + longitude.toString()); // !!!!!!!!!!
+            DataBase.addLocation(chatId, longitude, latitude);
         }
-
     }
 
    
