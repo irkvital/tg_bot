@@ -14,7 +14,7 @@ public class App
             botsApplication.registerBot(botToken, new Bot(botToken));
             Thread.currentThread().join();
         } catch (Exception e) {
-            logger.error(e.getMessage() + e);
+            logger.error(e.getMessage(), e);
         }
 
     }

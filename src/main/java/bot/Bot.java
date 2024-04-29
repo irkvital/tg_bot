@@ -17,8 +17,10 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class Bot implements LongPollingSingleThreadUpdateConsumer  {
     private final static Logger logger = LoggerFactory.getLogger(Bot.class);
     private final TelegramClient telegramClient;
-    String botToken;
-    ExecutorService executorService;
+    private String botToken;
+    private ExecutorService executorService;
+    private final DataBase db = DataBase.init();
+
 
     public Bot(String botToken) {
         telegramClient = new OkHttpTelegramClient(botToken);
@@ -87,7 +89,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
             String username = user.getUserName();
             String firsName = user.getFirstName();
             String lastName = user.getLastName();
-            DataBase.addNewUser(chatId, username, firsName, lastName);
+            db.addNewUser(chatId, username, firsName, lastName);
             SendMessage sendMessage = SendMessage
                         .builder()
                         .chatId(chatId)
@@ -116,7 +118,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
             long chatId = message.getChatId();
             logger.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
             sendText(chatId, latitude.toString() + " " + longitude.toString()); // !!!!!!!!!!
-            DataBase.addLocation(chatId, longitude, latitude);
+            db.addLocation(chatId, longitude, latitude);
         }
     }
 
