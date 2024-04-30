@@ -38,7 +38,6 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
 
     private class BotTask implements Runnable {
         Update update;
-        // final String url = "https://api.telegram.org/";
 
         BotTask(Update update) {
             this.update = update;
@@ -117,11 +116,12 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer  {
             Double longitude = message.getLocation().getLongitude();
             long chatId = message.getChatId();
             logger.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
-            sendText(chatId, latitude.toString() + " " + longitude.toString()); // !!!!!!!!!!
+
+            Weather weather = new Weather();
+            String weatherText = weather.get(latitude, longitude);
+            sendText(chatId, weatherText);
             db.addLocation(chatId, longitude, latitude);
         }
     }
 
-   
-    
 }

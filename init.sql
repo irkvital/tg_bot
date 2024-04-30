@@ -9,8 +9,3 @@ CREATE TABLE
                     users_id integer REFERENCES users (id), 
                     longitude double precision, 
                     latitude double precision);
-
-CREATE TABLE 
-    users_query (id SERIAL PRIMARY KEY, 
-                users_id integer REFERENCES users (id), 
-                query varchar);
