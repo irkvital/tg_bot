@@ -1,5 +1,8 @@
 package com.example.bot.service;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,6 +17,9 @@ public class BotTask implements Runnable {
     private Update update;
     private TelegramClient telegramClient;
 
+    @Autowired
+    private Weather weather;
+
     BotTask(Update update, TelegramClient telegramClient) {
         this.update = update;
         this.telegramClient = telegramClient;
@@ -26,9 +32,9 @@ public class BotTask implements Runnable {
             if (message.hasText()) {
                 caseText(message);
             }
-            // if (message.hasLocation()) {
-            //     caseLocation(message);
-            // }
+            if (message.hasLocation()) {
+                caseLocation(message);
+            }
         }
     }
 
@@ -87,15 +93,20 @@ public class BotTask implements Runnable {
         sendText(chatId, messageText);
     }
 
-    // private void caseLocation(Message message) {
-    //     Double latitude = message.getLocation().getLatitude();
-    //     Double longitude = message.getLocation().getLongitude();
-    //     long chatId = message.getChatId();
-    //     logger.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
+    private void caseLocation(Message message) {
+        Double latitude = message.getLocation().getLatitude();
+        Double longitude = message.getLocation().getLongitude();
+        long chatId = message.getChatId();
+        // logger.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
 
-    //     Weather weather = new Weather();
-    //     String weatherText = weather.get(latitude, longitude);
-    //     sendText(chatId, weatherText);
-    //     db.addLocation(chatId, longitude, latitude);
-    // }
+        String weatherText;
+        try {
+            weatherText = weather.get(latitude, longitude).toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            weatherText = "К сожалению, произошла ошибка";
+        }
+        sendText(chatId, weatherText);
+        // db.addLocation(chatId, longitude, latitude);
+    }
 }

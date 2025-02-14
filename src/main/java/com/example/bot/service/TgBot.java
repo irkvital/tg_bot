@@ -16,7 +16,7 @@ import com.example.bot.config.BotConfig;
 @Component
 public class TgBot implements LongPollingSingleThreadUpdateConsumer {
 
-    private final BotConfig config;
+    private final BotConfig botConfig;
     private final TelegramClient telegramClient;
     private ExecutorService executorService;
 
@@ -24,15 +24,15 @@ public class TgBot implements LongPollingSingleThreadUpdateConsumer {
     private ObjectProvider<BotTask> taskProvider;
 
 
-    public TgBot(BotConfig config) {
-        this.config = config;
-        telegramClient = new OkHttpTelegramClient(getBotToken());
+    public TgBot(BotConfig botConfig) {
+        this.botConfig = botConfig;
+        telegramClient = new OkHttpTelegramClient(getToken());
         // logger.info("Start bot: {}", botToken);
         executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
     
-    public String getBotToken() {
-        return config.getBotToken();
+    public String getToken() {
+        return botConfig.getToken();
     }
 
     @Override

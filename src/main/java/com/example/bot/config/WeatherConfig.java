@@ -9,8 +9,9 @@ import lombok.Data;
 @Configuration
 @Data
 @PropertySource("application.properties")
-public class BotConfig {
+public class WeatherConfig {
 
-    @Value("${bot.token}")
+    @Value("${weather.token}")
     String token;
+
 }

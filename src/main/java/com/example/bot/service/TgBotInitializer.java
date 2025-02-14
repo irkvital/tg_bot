@@ -16,7 +16,7 @@ public class TgBotInitializer {
     @PostConstruct
     public void init() {
         try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
-            botsApplication.registerBot(tgBot.getBotToken(), tgBot);
+            botsApplication.registerBot(tgBot.getToken(), tgBot);
             Thread.currentThread().join();
         } catch (Exception e) {
             // logger.error(e.getMessage(), e);
