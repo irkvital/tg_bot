@@ -10,4 +10,5 @@ class TgBotApplicationTests {
 	void contextLoads() {
 	}
 
+
 }
