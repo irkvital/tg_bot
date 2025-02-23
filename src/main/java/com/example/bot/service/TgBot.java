@@ -13,7 +13,10 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import com.example.bot.config.BotConfig;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class TgBot implements LongPollingSingleThreadUpdateConsumer {
 
     private final BotConfig botConfig;
@@ -27,7 +30,7 @@ public class TgBot implements LongPollingSingleThreadUpdateConsumer {
     public TgBot(BotConfig botConfig) {
         this.botConfig = botConfig;
         telegramClient = new OkHttpTelegramClient(getToken());
-        // logger.info("Start bot: {}", botToken);
+        log.info("Start bot: {}", getToken());
         executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
     
@@ -40,7 +43,6 @@ public class TgBot implements LongPollingSingleThreadUpdateConsumer {
         BotTask task = taskProvider.getObject(update, telegramClient);
         executorService.execute(task);
     }
-
 
 }
 

@@ -17,8 +17,11 @@ import com.example.bot.data_base.entity.DbUser;
 import com.example.bot.data_base.service.LocationService;
 import com.example.bot.data_base.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
 @Scope("prototype")
+@Slf4j
 public class BotTask implements Runnable {
     private Update update;
     private TelegramClient telegramClient;
@@ -50,15 +53,23 @@ public class BotTask implements Runnable {
     }
 
     private void caseText(Message message) {
-        // logger.info("User {} input text: {}", message.getChatId(), message.getText());
+        log.info("User {} input text: {}", message.getChatId(), message.getText());
         switch (message.getText()) {
             case ("/start"):
                 caseTextStart(message);
+                break;
+            case ("/users"):
+                caseTextUsers(message);
                 break;
             default:
                 caseTextDefault(message);
                 break;
         }
+    }
+
+    private void caseTextUsers(Message message) {
+        long count = userService.count();
+        sendText(message.getChatId(), "Количество пользователей: " + count);
     }
 
     private void sendText(long chatId, String text) {
@@ -71,7 +82,7 @@ public class BotTask implements Runnable {
         try {
             telegramClient.execute(sendMessage);
         } catch (TelegramApiException e) {
-            // logger.error("Can't execute message", e);
+            log.error("Can't execute message", e);
         }
     }
 
@@ -96,7 +107,7 @@ public class BotTask implements Runnable {
             try {
                 telegramClient.execute(sendMessage);
             } catch (TelegramApiException e) {
-                // logger.error("Can't execute message", e);
+                log.error("Can't execute message", e);
             }
         }
     }
@@ -112,7 +123,7 @@ public class BotTask implements Runnable {
         Double latitude = message.getLocation().getLatitude();
         Double longitude = message.getLocation().getLongitude();
         long chatId = message.getChatId();
-        // logger.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
+        log.info("User {} send location: lat {} lon {}", chatId, latitude, longitude);
 
         String weatherText;
         try {

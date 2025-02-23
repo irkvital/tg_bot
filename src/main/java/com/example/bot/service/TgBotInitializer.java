@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class TgBotInitializer {
 
     @Autowired
@@ -19,8 +21,7 @@ public class TgBotInitializer {
             botsApplication.registerBot(tgBot.getToken(), tgBot);
             Thread.currentThread().join();
         } catch (Exception e) {
-            // logger.error(e.getMessage(), e);
-            System.out.println(e);
+            log.error(e.getMessage(), e);
         }
     }
 }
