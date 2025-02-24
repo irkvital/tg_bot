@@ -97,4 +97,15 @@ public class DbUserTests {
 
         Assertions.assertThrows(NoSuchElementException.class, () -> userService.findById(10));
     }
+
+    @Test
+    public void UserReferenceByIdTest() {
+        long user_id = 0;
+        DbUser user = new DbUser(user_id, "testUser", "First", "Last");
+        userService.save(user);
+
+        DbUser user1 = userService.getReference(user_id);
+        System.out.println(user1);
+        assertEquals(user, user1);
+    }
 }

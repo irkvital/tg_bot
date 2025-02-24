@@ -128,7 +128,8 @@ public class BotTask implements Runnable {
         String weatherText;
         try {
             weatherText = weather.get(latitude, longitude).toString();
-            DbLocation location = new DbLocation(chatId, latitude, longitude);
+            DbUser user = userService.getReference(chatId);
+            DbLocation location = new DbLocation(user, latitude, longitude);
             locationService.save(location);
         } catch (IOException e) {
             e.printStackTrace();

@@ -26,4 +26,8 @@ public class UserService{
     public long count() {
         return repo.count();
     }
+
+    public DbUser getReference(long user_id) {
+        return repo.getReferenceById(user_id);
+    }
 }

@@ -14,8 +14,9 @@ public class DbLocation {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "user_id")
-    private long user_id;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private DbUser user;
 
     @Column(name = "latitude")
     private double latitude;
@@ -32,8 +33,8 @@ public class DbLocation {
 
     public DbLocation(){}
 
-    public DbLocation(long user_id, double latitude, double longitude) {
-        this.user_id = user_id;
+    public DbLocation(DbUser user, double latitude, double longitude) {
+        this.user = user;
         this.latitude = latitude;
         this.longitude = longitude;
         this.date = LocalDate.now();
